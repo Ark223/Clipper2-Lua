@@ -266,7 +266,7 @@ local Paths = Class()
 ---@param initial_paths?  integer # anticip. number of paths
 ---@param initial_points? integer # anticip. points per path
 function Paths:init(initial_paths, initial_points)
-  local num_paths = initial_paths  or 4
+  local num_paths = initial_paths or 4
   local per_path  = initial_points or 16
   local capacity  = num_paths * (2 + 2 * per_path) + 2
   local buffer    = ffi.new("double[?]", capacity)
@@ -382,23 +382,23 @@ function Clipper:init() end
 ---Perform a boolean operation for paths.
 ---@param cliptype            ClipType  # boolean operation kind
 ---@param fillrule            FillRule  # winding rule for clipping
----@param subj                Paths     # closed subject paths (not null)
----@param open                Paths|nil # open subject paths (may be null)
----@param clip                Paths|nil # closed clip paths (may be null)
+---@param subjects            Paths|nil # closed subject paths (may be null)
+---@param subj_open           Paths|nil # open subject paths (may be null)
+---@param clips               Paths|nil # closed clip paths (may be null)
 ---@param precision?          integer   # decimal precision (default = 2)
 ---@param preserve_collinear? boolean   # keep collinear edges (default = true)
 ---@param reverse_solution?   boolean   # reverse output winding (default = false)
 ---@return Paths, Paths                 # result closed and open paths
-function Clipper:boolean(cliptype, fillrule, subj, open,
-  clip, precision, preserve_collinear, reverse_solution)
+function Clipper:boolean(cliptype, fillrule, subjects, subj_open,
+  clips, precision, preserve_collinear, reverse_solution)
 
   local precision = precision or 2
   local preserve_collinear = preserve_collinear ~= false
   local reverse_solution = reverse_solution == true
 
-  local subj_buf = subj and subj._buf_ref[1] or ffi.cast("double*", 0)
-  local open_buf = open and open._buf_ref[1] or ffi.cast("double*", 0)
-  local clip_buf = clip and clip._buf_ref[1] or ffi.cast("double*", 0)
+  local subj_buf = subjects and subjects._buf_ref[1] or ffi.cast("double*", 0)
+  local open_buf = subj_open and subj_open._buf_ref[1] or ffi.cast("double*", 0)
+  local clip_buf = clips and clips._buf_ref[1] or ffi.cast("double*", 0)
 
   local out_sol  = ffi.new("double*[1]")
   local out_open = ffi.new("double*[1]")
@@ -414,47 +414,47 @@ function Clipper:boolean(cliptype, fillrule, subj, open,
 end
 
 ---Perform intersection operation for paths.
----@param subj       Paths     # subject path (not null)
----@param clip       Paths|nil # clipping path (may be null)
+---@param subjects   Paths     # subject paths (not null)
+---@param clips      Paths|nil # clipping paths (may be null)
 ---@param fillrule?  FillRule  # winding rule (default = `EvenOdd`)
 ---@param precision? integer   # decimal precision (default = 2)
 ---@return Paths, Paths        # result closed and open paths
-function Clipper:intersect(subj, clip, fillrule, precision)
+function Clipper:intersect(subjects, clips, fillrule, precision)
   return self:boolean(ClipType.Intersection, fillrule or
-    FillRule.EvenOdd, subj, nil, clip, precision)
+    FillRule.EvenOdd, subjects, nil, clips, precision)
 end
 
 ---Perform union operation for paths.
----@param subj       Paths     # subject path (not null)
----@param clip       Paths|nil # clipping path (may be null)
+---@param subjects   Paths     # subject paths (not null)
+---@param clips      Paths|nil # clipping paths (may be null)
 ---@param fillrule?  FillRule  # winding rule (default = `EvenOdd`)
 ---@param precision? integer   # decimal precision (default = 2)
 ---@return Paths, Paths        # result closed and open paths
-function Clipper:union(subj, clip, fillrule, precision)
+function Clipper:union(subjects, clips, fillrule, precision)
   return self:boolean(ClipType.Union, fillrule or
-    FillRule.EvenOdd, subj, nil, clip, precision)
+    FillRule.EvenOdd, subjects, nil, clips, precision)
 end
 
 ---Perform difference operation for paths.
----@param subj       Paths     # subject path (not null)
----@param clip       Paths|nil # clipping path (may be null)
+---@param subjects   Paths     # subject paths (not null)
+---@param clips      Paths|nil # clipping paths (may be null)
 ---@param fillrule?  FillRule  # winding rule (default = `EvenOdd`)
 ---@param precision? integer   # decimal precision (default = 2)
 ---@return Paths, Paths        # result closed and open paths
-function Clipper:difference(subj, clip, fillrule, precision)
+function Clipper:difference(subjects, clips, fillrule, precision)
   return self:boolean(ClipType.Difference, fillrule or
-    FillRule.EvenOdd, subj, nil, clip, precision)
+    FillRule.EvenOdd, subjects, nil, clips, precision)
 end
 
----Perform XOR operation for paths.
----@param subj       Paths     # subject path (not null)
----@param clip       Paths|nil # clipping path (may be null)
+---Perform exclusive-or operation for paths.
+---@param subjects   Paths     # subject paths (not null)
+---@param clips      Paths|nil # clipping paths (may be null)
 ---@param fillrule?  FillRule  # winding rule (default = `EvenOdd`)
 ---@param precision? integer   # decimal precision (default = 2)
 ---@return Paths, Paths        # result closed and open paths
-function Clipper:xor(subj, clip, fillrule, precision)
+function Clipper:xor(subjects, clips, fillrule, precision)
   return self:boolean(ClipType.Xor, fillrule or
-    FillRule.EvenOdd, subj, nil, clip, precision)
+    FillRule.EvenOdd, subjects, nil, clips, precision)
 end
 
 ---Inflate (offset) one closed or open path.

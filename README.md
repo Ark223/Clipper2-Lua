@@ -40,12 +40,12 @@ The main interface for performing polygon operations.
   - `Clipper:new()`
 
 - **Boolean Operations**
-  - `Clipper:boolean(cliptype, fillrule, subject[, subj_open, `  
-      `clip, precision, preserve_collinear, reverse_solution])`  
-  - `Clipper:intersect(subject[, clip, fillrule, precision])`  
-  - `Clipper:union(subject[, clip, fillrule, precision])`  
-  - `Clipper:difference(subject[, clip, fillrule, precision])`  
-  - `Clipper:xor(subject[, clip, fillrule, precision])`
+  - `Clipper:boolean(cliptype, fillrule[, subjects, subj_open, `  
+      `clips, precision, preserve_collinear, reverse_solution])`  
+  - `Clipper:intersect(subjects[, clips, fillrule, precision])`  
+  - `Clipper:union(subjects[, clips, fillrule, precision])`  
+  - `Clipper:difference(subjects[, clips, fillrule, precision])`  
+  - `Clipper:xor(subjects[, clips, fillrule, precision])`
 
 - **Path Offsetting**
   - `Clipper:inflate_path(path, delta[, jointype, endtype, `  
